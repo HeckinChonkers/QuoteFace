@@ -1,5 +1,8 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "KEY_AUTHOR": 1,
+        "KEY_QUOTE": 0
+    },
     "capabilities": [
         "configurable"
     ],

@@ -1,4 +1,6 @@
 #include <pebble.h>
+#define KEY_QUOTE 0
+#define KEY_AUTHOR 1
 
 static TextLayer *timeLayer;
 static TextLayer *quoteLayer;
@@ -58,7 +60,7 @@ void window_load(Window *window){
   // And apply the font to the quote layer
   text_layer_set_font(quoteLayer, quoteFont);
   text_layer_set_text_alignment(quoteLayer, GTextAlignmentCenter);
-  text_layer_set_text(quoteLayer, "Only two things are infinite, the universe and human stupidity, and I'm not sure about the former.\n-Albert Einstein");
+  text_layer_set_text(quoteLayer, "Loading Quote...");
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(quoteLayer));
 }
 
@@ -78,6 +80,50 @@ static void tick_handler(struct tm *clockTime, TimeUnits units_changed){
   update_time();
 }
 
+static void inbox_received_callback(DictionaryIterator *iterator, void *context){
+  //Store incoming information
+  static char quoteBuffer[120];
+  static char authorBuffer[20];
+  static char overallBuffer[140];
+  
+  //Read first item
+  Tuple *t = dict_read_first(iterator);
+  
+  //For all items
+  while(t != NULL){
+    //Which key was received?
+    switch(t->key){
+      case KEY_QUOTE:
+        snprintf(quoteBuffer, sizeof(quoteBuffer), "%s\n", t->value->cstring);
+        break;
+      case KEY_AUTHOR:
+        snprintf(authorBuffer, sizeof(authorBuffer), "-%s", t->value->cstring);
+        break;
+      default:
+        APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
+        break;
+    }
+    
+    // Look for next item
+    t = dict_read_next(iterator);
+  }
+  
+  snprintf(overallBuffer, sizeof(overallBuffer), "%s%s", quoteBuffer, authorBuffer);
+  text_layer_set_text(quoteLayer, overallBuffer);
+}
+
+static void inbox_dropped_callback(AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
+}
+
+static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+}
+
+static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+}
+
 void handle_init(void) {
   my_window = window_create();
 
@@ -93,6 +139,15 @@ void handle_init(void) {
   
   // Then subscribe to event to update time every minute
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  
+   //Register callbacks
+  app_message_register_inbox_received(inbox_received_callback);
+  app_message_register_inbox_dropped(inbox_dropped_callback);
+  app_message_register_outbox_failed(outbox_failed_callback);
+  app_message_register_outbox_sent(outbox_sent_callback);
+  
+  // Open AppMessage
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
 
 void handle_deinit(void) {

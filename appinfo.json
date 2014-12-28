@@ -1,0 +1,35 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        "configurable"
+    ],
+    "companyName": "Rittertech",
+    "longName": "QuoteTime",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "fonts/DJB Holly Serif.ttf",
+                "name": "FONT_DJB_HOLLY_SERIF_14",
+                "type": "font"
+            },
+            {
+                "file": "fonts/SansPosterBold.ttf",
+                "name": "FONT_SANSPOSTER_BOLD_20",
+                "type": "font"
+            },
+            {
+                "file": "images/quoteBG1.png",
+                "name": "IMAGE_QUOTE_BACKGROUND",
+                "type": "png"
+            }
+        ]
+    },
+    "shortName": "QuoteTime",
+    "uuid": "7e470624-8458-4ec5-a21d-ef95307d403c",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}

@@ -10,6 +10,27 @@ static GBitmap *backgroundBitmap;
 Window *my_window;
 TextLayer *text_layer;
 
+static void update_time(){
+  //Get a time struct
+  time_t timeVar = time(NULL);
+  struct tm *clockTime = localtime(&timeVar);
+  
+  //Create a time string buffer
+  static char buffer[] = "00:00 AM";
+  
+  //Write the current hours and minutes into the buffer
+  if(clock_is_24h_style() == true){
+    //Use 24 hour format
+    strftime(buffer, sizeof("00:00"), "%H:%M", clockTime);
+  } else {
+    //Use 12 hour format
+    strftime(buffer, sizeof("00:00AM"), "%I:%M %p", clockTime);
+  }
+  
+  //Display this time on the TextLayer
+  text_layer_set_text(timeLayer, buffer);
+}
+
 void window_load(Window *window){
   // Create background bitmap and layer
   backgroundBitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_QUOTE_BACKGROUND);
@@ -26,7 +47,6 @@ void window_load(Window *window){
   // And apply the font to the time layer
   text_layer_set_font(timeLayer, timeFont);
   text_layer_set_text_alignment(timeLayer, GTextAlignmentCenter);
-  text_layer_set_text(timeLayer, "00:00AM");
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(timeLayer));
   
   // Create the quote layer
@@ -43,9 +63,19 @@ void window_load(Window *window){
 }
 
 void window_unload(Window *window){
+  // Destroy TextLayers
+  text_layer_destroy(timeLayer);
+  text_layer_destroy(quoteLayer);
+  fonts_unload_custom_font(timeFont);
+  fonts_unload_custom_font(quoteFont);
+  
   // Destroy background bitmap and layer
   gbitmap_destroy(backgroundBitmap);
   bitmap_layer_destroy(bgLayer);
+}
+
+static void tick_handler(struct tm *clockTime, TimeUnits units_changed){
+  update_time();
 }
 
 void handle_init(void) {
@@ -57,6 +87,12 @@ void handle_init(void) {
   });
   
   window_stack_push(my_window, true);
+  
+  // Update time from the start
+  update_time();
+  
+  // Then subscribe to event to update time every minute
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 }
 
 void handle_deinit(void) {

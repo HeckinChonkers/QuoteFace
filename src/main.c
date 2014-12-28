@@ -18,7 +18,7 @@ void window_load(Window *window){
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(bgLayer));
   
   // Now create the time layer
-  timeLayer = text_layer_create(GRect(2.5,20,139,50));
+  timeLayer = text_layer_create(GRect(2.5,8,139,50));
   text_layer_set_background_color(timeLayer, GColorClear);
   text_layer_set_text_color(timeLayer, GColorBlack);
   timeFont = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_SANSPOSTER_BOLD_20));
@@ -30,10 +30,10 @@ void window_load(Window *window){
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(timeLayer));
   
   // Create the quote layer
-  quoteLayer = text_layer_create(GRect(5,65,139,100));
+  quoteLayer = text_layer_create(GRect(3,45,139,100));
   text_layer_set_background_color(quoteLayer, GColorClear);
   text_layer_set_text_color(quoteLayer, GColorWhite);
-  quoteFont = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_DJB_HOLLY_SERIF_14));
+  quoteFont = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_DJB_HOLLY_SERIF_12));
   
   // And apply the font to the quote layer
   text_layer_set_font(quoteLayer, quoteFont);
